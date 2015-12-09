@@ -12,7 +12,8 @@ course = ["COMP11120", "COMP25111"]
 (2006..2014).each do |year|
   suffix = "?view=&year=#{year}"
 
-  page = Nokogiri::HTML(open(baseURL))
+  thisURL = baseURL + suffix
+  page = Nokogiri::HTML(open(thisURL))
 
   courseToLinks = Hash.new(Array.new)
 
@@ -29,7 +30,7 @@ course = ["COMP11120", "COMP25111"]
   courseToLinks.each do |courseName, links|
     FileUtils.mkdir_p "#{courseName}/#{year}-#{year+1}"
     links.each do |link|
-      File.write("#{courseName}/#{year}-#{year+1}/#{File.basename(link)}", open(link).read)
+      File.write("#{courseName}/#{year}-#{year+1}/#{File.basename(link)}", open(link.gsub(" ","%20")).read)
     end
   end
 end
