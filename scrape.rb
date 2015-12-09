@@ -1,17 +1,34 @@
 require 'nokogiri'
 require 'open-uri'
 require 'pry'
+require 'date'
+require 'fileutils'
 
-scrapeURL = 'http://studentnet.cs.manchester.ac.uk/assessment/exam_papers/index.php'
+baseURL = 'http://studentnet.cs.manchester.ac.uk/assessment/exam_papers/index.php'
 
-page = Nokogiri::HTML(open(scrapeURL))
+fullName = false
 
-courseToLinks = Hash.new []
+course = ["COMP11120", "COMP25111"]
 
-page.css('div.indentdiv div.indentdiv').each do |course|
-  name = course.css('h2').text
-  course.css('ul li a').each do |link|
-    courseToLinks[name] << link.get_attribute('href')
+page = Nokogiri::HTML(open(baseURL))
+
+courseToLinks = Hash.new(Array.new)
+
+page.css('div.indentdiv div.indentdiv').each do |courseEntry|
+  name = courseEntry.css('h2').text
+  name = name.split.first unless fullName
+  courseToLinks[name] = courseEntry.css('ul li a').map do |link|
+    link.get_attribute('href')
   end
 end
 
+courseToLinks = courseToLinks.select{|k,v| course.include?(k)}
+
+courseToLinks.each do |courseName, links|
+  FileUtils.mkdir_p courseName
+  links.each do |link|
+    File.write("#{courseName}/#{File.basename(link)}", open(link).read)
+  end
+end
+
+binding.pry
