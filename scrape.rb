@@ -9,7 +9,7 @@ courseTitleSelector = 'h2'
 contentLinkSelector = 'ul li a'
 
 # Just for the sake of variable name readability
-courses = ARGV
+courses = ARGV.map {|arg| arg.upcase }
 
 # Years are hardcoded... Can't think of a better way considering
 # past papers may be released at different times.
